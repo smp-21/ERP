@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   LayoutDashboard,
   Files,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Gavel
 } from "lucide-react";
 
 export const NAVIGATION_MODULES = [

@@ -56,6 +56,9 @@ The platform is divided into comprehensive enterprise departments, housing a tot
 - **Attendance & Leave**: Time-tracking and leave management.
 - **User & Roles**: Enterprise security, RBAC (Role-Based Access Control).
 
+### 🏛️ Government & Tenders
+- **GeM Tenders**: Discover government electronic marketplace tenders matched to your niche, apply, and track application status.
+
 ## 🚀 Tech Stack
 
 - **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
