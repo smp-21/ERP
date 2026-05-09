@@ -1,26 +1,72 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
+@theme {
+  --color-obsidian: #050505;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* MNC Light Theme */
+    --background: #F1F5F9;
+    --foreground: #0F172A;
+    --muted: #475569;
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(203, 213, 225, 0.3); /* border-slate-300/30 equivalent */
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark {
+    /* MNC Dark (Obsidian) Theme */
+    --background: #050505;
+    --foreground: #F8FAFC;
+    --muted: #94A3B8;
+    --glass-bg: rgba(18, 18, 18, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+  
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* Liquid Glass Core Utility */
+  .liquid-glass {
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid var(--glass-border);
+    background-clip: padding-box;
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* Liquid Glass Dark (for extreme depth or modals) */
+  .liquid-glass-dark {
+    background-color: rgba(18, 18, 18, 0.8);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-clip: padding-box;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Specular Highlight only utility */
+  .specular-edge {
+    border-top: 1px solid var(--glass-border);
+  }
+
+  /* Muted Text */
+  .text-muted {
+    color: var(--muted);
+  }
 }
