@@ -6,7 +6,6 @@ import { LiquidDataGrid, ColumnDef } from "@/components/ui/LiquidDataGrid";
 import { glassPanelVariants, childItemVariants, organicInteractions } from "@/lib/motion";
 import { Gavel, SearchCode, Send, Trophy, ArrowUpRight } from "lucide-react";
 
-// Mock Data
 const newTenders = [
   { id: "GEM-2026-T1", department: "Defense R&D", category: "Advanced Optics", value: "$450,000", closing: "May 20, 2026", match: "98%" },
   { id: "GEM-2026-T2", department: "Space Agency", category: "Silica Substrates", value: "$1.2M", closing: "Jun 02, 2026", match: "94%" },
@@ -14,17 +13,12 @@ const newTenders = [
 ];
 
 const newTendersColumns: ColumnDef<typeof newTenders[0]>[] = [
-  { key: "id", header: "Tender ID", render: (item) => <span className="text-foreground/90 font-medium">{item.id}</span> },
+  { key: "id", header: "Tender ID", render: (item) => <span className="text-foreground font-semibold">{item.id}</span> },
   { key: "department", header: "Department" },
   { key: "category", header: "Category" },
   { key: "value", header: "Value", align: "right" },
   { key: "closing", header: "Closing Date", align: "right" },
-  { 
-    key: "match", 
-    header: "Match Score", 
-    align: "right",
-    render: (item) => <span className="text-emerald-400 font-mono">{item.match}</span>
-  },
+  { key: "match", header: "Match Score", align: "right", render: (item) => <span className="text-emerald-500 dark:text-emerald-400 font-mono font-semibold">{item.match}</span> },
 ];
 
 const appliedTenders = [
@@ -35,17 +29,17 @@ const appliedTenders = [
 ];
 
 const appliedTendersColumns: ColumnDef<typeof appliedTenders[0]>[] = [
-  { key: "id", header: "Tender ID", render: (item) => <span className="text-foreground/90 font-medium">{item.id}</span> },
+  { key: "id", header: "Tender ID", render: (item) => <span className="text-foreground font-semibold">{item.id}</span> },
   { key: "appliedDate", header: "Applied Date" },
-  { 
-    key: "status", 
+  {
+    key: "status",
     header: "Status",
     render: (item) => (
-      <span className={`px-2 py-1 rounded-md text-xs font-sans font-medium ${
-        item.status === 'Won' ? 'bg-emerald-500/10 text-emerald-400' :
-        item.status === 'Shortlisted' ? 'bg-blue-500/10 text-blue-400' :
-        item.status === 'Evaluation' ? 'bg-amber-500/10 text-amber-400' :
-        'bg-rose-500/10 text-rose-400'
+      <span className={`px-2.5 py-1 rounded-lg text-xs font-sans font-semibold ${
+        item.status === 'Won' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+        item.status === 'Shortlisted' ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400' :
+        item.status === 'Evaluation' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+        'bg-rose-500/10 text-rose-600 dark:text-rose-400'
       }`}>
         {item.status}
       </span>
@@ -55,10 +49,10 @@ const appliedTendersColumns: ColumnDef<typeof appliedTenders[0]>[] = [
 ];
 
 const metrics = [
-  { label: "Active Tenders (Market)", value: "12,405", icon: Gavel, color: "text-blue-400" },
-  { label: "New Matches (Your Niche)", value: "14", icon: SearchCode, color: "text-purple-400" },
-  { label: "Currently Applied", value: "8", icon: Send, color: "text-amber-400" },
-  { label: "Contracts Won", value: "42", icon: Trophy, color: "text-emerald-400" },
+  { label: "Active Tenders (Market)", value: "12,405", icon: Gavel, color: "text-sky-500 dark:text-sky-400", glow: "bg-sky-500" },
+  { label: "New Matches (Your Niche)", value: "14", icon: SearchCode, color: "text-violet-500 dark:text-violet-400", glow: "bg-violet-500" },
+  { label: "Currently Applied", value: "8", icon: Send, color: "text-amber-500 dark:text-amber-400", glow: "bg-amber-500" },
+  { label: "Contracts Won", value: "42", icon: Trophy, color: "text-emerald-500 dark:text-emerald-400", glow: "bg-emerald-500" },
 ];
 
 export default function GeMTendersPage() {
@@ -72,7 +66,7 @@ export default function GeMTendersPage() {
           <motion.button
             whileHover={organicInteractions.hover}
             whileTap={organicInteractions.tap}
-            className="px-4 py-2 bg-white text-black font-sans font-semibold rounded-xl text-sm flex items-center gap-2 hover:bg-white/90 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+            className="px-5 py-2.5 bg-[var(--accent)] text-white font-sans font-bold rounded-xl text-sm flex items-center gap-2 shadow-lg glow-accent cursor-pointer"
           >
             Refresh Feed
             <ArrowUpRight className="w-4 h-4" />
@@ -81,7 +75,7 @@ export default function GeMTendersPage() {
       />
 
       {/* Metrics */}
-      <motion.div 
+      <motion.div
         variants={glassPanelVariants}
         initial="hidden"
         animate="visible"
@@ -92,19 +86,20 @@ export default function GeMTendersPage() {
             key={idx}
             variants={childItemVariants}
             whileHover={organicInteractions.hover}
-            className="liquid-glass rounded-3xl p-6 relative overflow-hidden group"
+            whileTap={organicInteractions.tap}
+            className="liquid-glass rounded-3xl p-6 relative overflow-hidden group cursor-default"
           >
-            <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full blur-[40px] opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${metric.color.replace('text-', 'bg-')}`} />
-            
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div className={`p-3 rounded-xl bg-white/5 border-t border-white/10 ${metric.color}`}>
+            <div className={`absolute -right-8 -top-8 w-28 h-28 rounded-full blur-[50px] opacity-0 group-hover:opacity-30 transition-opacity duration-700 ${metric.glow}`} />
+
+            <div className="flex justify-between items-start mb-5 relative z-10">
+              <div className={`p-3 rounded-xl bg-foreground/[0.04] border border-foreground/[0.06] ${metric.color}`}>
                 <metric.icon className="w-5 h-5" />
               </div>
             </div>
-            
+
             <div className="relative z-10">
-              <h3 className="text-foreground/50 text-sm font-sans mb-1">{metric.label}</h3>
-              <p className="text-3xl font-bold font-sans text-foreground tracking-tight">{metric.value}</p>
+              <h3 className="micro-label mb-2">{metric.label}</h3>
+              <p className="text-3xl font-extrabold font-sans text-foreground tracking-tight">{metric.value}</p>
             </div>
           </motion.div>
         ))}
@@ -112,39 +107,21 @@ export default function GeMTendersPage() {
 
       {/* Data Grids */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-6">
-        <motion.div
-          variants={glassPanelVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col gap-4"
-        >
+        <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between px-2">
-            <h2 className="text-lg font-sans font-semibold text-foreground">New Matches (Your Niche)</h2>
-            <button className="text-xs text-foreground/50 hover:text-foreground transition-colors uppercase tracking-wider font-medium">View All</button>
+            <h2 className="text-lg font-sans font-bold text-foreground tracking-tight">New Matches (Your Niche)</h2>
+            <button className="micro-label hover:text-foreground transition-colors cursor-pointer">View All</button>
           </div>
-          <LiquidDataGrid
-            data={newTenders}
-            columns={newTendersColumns}
-            onRowClick={(row) => console.log("Clicked Tender", row)}
-          />
-        </motion.div>
+          <LiquidDataGrid data={newTenders} columns={newTendersColumns} onRowClick={(row) => console.log("Clicked Tender", row)} />
+        </div>
 
-        <motion.div
-          variants={glassPanelVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col gap-4"
-        >
+        <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between px-2">
-            <h2 className="text-lg font-sans font-semibold text-foreground">Applied Tenders Status</h2>
-            <button className="text-xs text-foreground/50 hover:text-foreground transition-colors uppercase tracking-wider font-medium">View All</button>
+            <h2 className="text-lg font-sans font-bold text-foreground tracking-tight">Applied Tenders Status</h2>
+            <button className="micro-label hover:text-foreground transition-colors cursor-pointer">View All</button>
           </div>
-          <LiquidDataGrid
-            data={appliedTenders}
-            columns={appliedTendersColumns}
-            onRowClick={(row) => console.log("Clicked Application", row)}
-          />
-        </motion.div>
+          <LiquidDataGrid data={appliedTenders} columns={appliedTendersColumns} onRowClick={(row) => console.log("Clicked Application", row)} />
+        </div>
       </div>
     </div>
   );

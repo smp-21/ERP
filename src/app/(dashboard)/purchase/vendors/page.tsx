@@ -1,117 +1,302 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { GlassPageHeader } from "@/components/ui/GlassPageHeader";
-import { Building2, MapPin, Mail, Phone, Star, TrendingUp, Search, Filter, FileText } from "lucide-react";
-import { RadialBarChart, RadialBar, ResponsiveContainer, Tooltip } from "recharts";
-import { organicInteractions } from "@/lib/motion";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import {
+  Users, Shield, Clock, IndianRupee, ArrowDown, ArrowUp, CheckCircle2,
+  AlertTriangle, Timer, Gavel, Award, TrendingDown, ChevronDown, Star
+} from "lucide-react";
+import { organicInteractions, liquidSpringPhysics, snappySpring, glassPanelVariants, childItemVariants } from "@/lib/motion";
 
-const VENDORS = [
-  { id: "V-001", name: "Alpha Metals Corp", type: "Raw Materials", location: "Pune, India", email: "sales@alphametals.in", phone: "+91 98765 43210", rating: 94, activeContracts: 3, spend: "₹1.2Cr", color: "#818cf8" },
-  { id: "V-002", name: "TechComponents Ltd", type: "Electronics", location: "Shenzhen, CN", email: "export@techcomp.cn", phone: "+86 138 0013 8000", rating: 88, activeContracts: 1, spend: "₹45L", color: "#10b981" },
-  { id: "V-003", name: "Global Logistics Inc", type: "Freight", location: "Mumbai, India", email: "ops@globallogistics.com", phone: "+91 22 2838 1000", rating: 76, activeContracts: 5, spend: "₹85L", color: "#f59e0b" },
-  { id: "V-004", name: "Industrial Supplies Co", type: "Consumables", location: "Delhi, India", email: "orders@indsupplies.in", phone: "+91 11 4152 2000", rating: 98, activeContracts: 2, spend: "₹12L", color: "#f43f5e" },
-  { id: "V-005", name: "Omega Polymers", type: "Raw Materials", location: "Ahmedabad, India", email: "info@omegapoly.in", phone: "+91 79 2640 3000", rating: 91, activeContracts: 4, spend: "₹2.1Cr", color: "#0ea5e9" },
-  { id: "V-006", name: "Secure Packaging", type: "Packaging", location: "Surat, India", email: "hello@securepack.in", phone: "+91 261 247 5000", rating: 85, activeContracts: 1, spend: "₹8L", color: "#8b5cf6" },
+// =============================================
+// Reverse Auction Bids
+// =============================================
+interface AuctionItem {
+  id: string;
+  title: string;
+  category: string;
+  closingIn: string;
+  reservePrice: number;
+  currentLowest: number;
+  totalBids: number;
+  status: "live" | "closing" | "closed";
+  bids: { vendor: string; amount: number; time: string; rank: number; isLowest: boolean }[];
+}
+
+const AUCTIONS: AuctionItem[] = [
+  {
+    id: "RFQ-2026-0451",
+    title: "Neodymium Magnets N52 (Lot: 2,400 pcs)",
+    category: "Raw Materials",
+    closingIn: "2h 14m",
+    reservePrice: 1440000,
+    currentLowest: 1188000,
+    totalBids: 6,
+    status: "live",
+    bids: [
+      { vendor: "Alpha Metals Corp", amount: 1188000, time: "11:42 AM", rank: 1, isLowest: true },
+      { vendor: "Omega Polymers", amount: 1224000, time: "11:38 AM", rank: 2, isLowest: false },
+      { vendor: "IndoRare Minerals", amount: 1296000, time: "11:15 AM", rank: 3, isLowest: false },
+      { vendor: "Pacific Elements", amount: 1350000, time: "10:55 AM", rank: 4, isLowest: false },
+    ],
+  },
+  {
+    id: "RFQ-2026-0452",
+    title: "CNC Cutting Tool Inserts (Lot: 500 pcs)",
+    category: "Consumables",
+    closingIn: "45m",
+    reservePrice: 250000,
+    currentLowest: 198500,
+    totalBids: 4,
+    status: "closing",
+    bids: [
+      { vendor: "TechComponents Ltd", amount: 198500, time: "12:01 PM", rank: 1, isLowest: true },
+      { vendor: "Industrial Supplies Co", amount: 212000, time: "11:50 AM", rank: 2, isLowest: false },
+      { vendor: "Sandvik India", amount: 224000, time: "11:30 AM", rank: 3, isLowest: false },
+    ],
+  },
+  {
+    id: "RFQ-2026-0449",
+    title: "Hydraulic Press Maintenance Contract (Annual)",
+    category: "Services",
+    closingIn: "Closed",
+    reservePrice: 800000,
+    currentLowest: 625000,
+    totalBids: 5,
+    status: "closed",
+    bids: [
+      { vendor: "Global Logistics Inc", amount: 625000, time: "Yesterday", rank: 1, isLowest: true },
+      { vendor: "TechServe India", amount: 680000, time: "Yesterday", rank: 2, isLowest: false },
+    ],
+  },
 ];
 
-export default function PurchaseVendorsPage() {
+function getStatusConfig(status: string) {
+  switch(status) {
+    case "live": return { label: "LIVE", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", dot: "bg-emerald-500" };
+    case "closing": return { label: "CLOSING SOON", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", dot: "bg-amber-500" };
+    case "closed": return { label: "AWARDED", color: "text-[var(--accent)]", bg: "bg-[var(--accent)]/10", border: "border-[var(--accent)]/20", dot: "bg-[var(--accent)]" };
+    default: return { label: "", color: "", bg: "", border: "", dot: "" };
+  }
+}
+
+export default function VendorAuctionPage() {
+  const [selectedAuction, setSelectedAuction] = useState(AUCTIONS[0].id);
+  const activeAuction = AUCTIONS.find(a => a.id === selectedAuction)!;
+  const cfg = getStatusConfig(activeAuction.status);
+  const savings = activeAuction.reservePrice - activeAuction.currentLowest;
+  const savingsPct = Math.round((savings / activeAuction.reservePrice) * 100);
+
   return (
     <div className="flex flex-col h-full gap-6">
       <GlassPageHeader
-        title="Vendor Directory"
-        description="Manage supplier relationships, evaluate performance ratings, and track contracts."
+        title="Vendor Self-Service — Reverse Auction"
+        description="Transparent competitive bidding portal. Vendors compete on price — lowest qualified bid wins."
         breadcrumbs={[{ label: "Procurement" }, { label: "Vendors" }]}
+        actions={
+          <motion.button
+            whileHover={organicInteractions.hover}
+            whileTap={organicInteractions.tap}
+            className="px-4 py-2.5 bg-[var(--accent)] text-white font-bold text-sm rounded-xl glow-accent flex items-center gap-2 cursor-pointer"
+          >
+            <Gavel className="w-4 h-4" /> Create New RFQ
+          </motion.button>
+        }
       />
 
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <button className="px-5 py-2.5 bg-foreground text-background font-bold text-sm rounded-xl shadow-lg whitespace-nowrap">All Vendors</button>
-          <button className="px-5 py-2.5 bg-foreground/5 hover:bg-foreground/10 text-foreground font-semibold text-sm rounded-xl border border-foreground/10 transition-colors whitespace-nowrap">Raw Materials</button>
-          <button className="px-5 py-2.5 bg-foreground/5 hover:bg-foreground/10 text-foreground font-semibold text-sm rounded-xl border border-foreground/10 transition-colors whitespace-nowrap">Logistics</button>
-          <button className="px-5 py-2.5 bg-foreground/5 hover:bg-foreground/10 text-foreground font-semibold text-sm rounded-xl border border-foreground/10 transition-colors whitespace-nowrap text-rose-500">Underperforming</button>
-        </div>
-        <div className="hidden md:flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-background rounded-xl border border-foreground/10 shadow-sm">
-            <Search className="w-4 h-4 text-muted" />
-            <input type="text" placeholder="Search vendors..." className="bg-transparent border-none outline-none text-sm w-48 text-foreground" />
-          </div>
-          <button className="p-2.5 bg-background rounded-xl border border-foreground/10 text-muted hover:text-foreground shadow-sm">
-            <Filter className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 flex-1 overflow-y-auto pb-6">
-        {VENDORS.map((vendor) => (
-          <motion.div 
-            key={vendor.id}
-            whileHover={organicInteractions.hover}
-            className="liquid-glass rounded-3xl p-6 border border-foreground/10 flex flex-col group cursor-pointer"
-          >
-            <div className="flex justify-between items-start mb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-foreground/5 border border-foreground/10 flex items-center justify-center text-foreground font-bold text-xl group-hover:scale-110 transition-transform">
-                  {vendor.name.charAt(0)}
+      {/* Auction Cards */}
+      <motion.div
+        variants={glassPanelVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
+        {AUCTIONS.map((auction) => {
+          const acfg = getStatusConfig(auction.status);
+          const isActive = selectedAuction === auction.id;
+          const aSavings = auction.reservePrice - auction.currentLowest;
+          return (
+            <motion.div
+              key={auction.id}
+              variants={childItemVariants}
+              whileHover={organicInteractions.hover}
+              whileTap={organicInteractions.tap}
+              onClick={() => setSelectedAuction(auction.id)}
+              className={`liquid-glass rounded-2xl p-5 cursor-pointer relative overflow-hidden group transition-all ${
+                isActive ? 'ring-2 ring-[var(--accent)] shadow-[0_0_24px_var(--glow-accent)]' : ''
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-mono text-xs font-bold text-muted">{auction.id}</span>
+                <div className="flex items-center gap-1.5">
+                  {auction.status !== "closed" && (
+                    <div className="relative">
+                      <div className={`w-2 h-2 rounded-full ${acfg.dot}`} />
+                      <div className={`absolute inset-0 w-2 h-2 rounded-full ${acfg.dot} animate-ping opacity-40`} />
+                    </div>
+                  )}
+                  <span className={`micro-label ${acfg.color}`}>{acfg.label}</span>
                 </div>
+              </div>
+
+              <h4 className="font-bold text-foreground text-sm mb-1 truncate">{auction.title}</h4>
+              <p className="text-xs text-muted mb-4">{auction.category}</p>
+
+              <div className="flex items-end justify-between">
                 <div>
-                  <h3 className="font-bold text-foreground truncate max-w-[150px]">{vendor.name}</h3>
-                  <p className="text-xs text-muted font-mono">{vendor.id}</p>
+                  <p className="micro-label mb-1">Current Lowest</p>
+                  <p className="text-xl font-extrabold text-emerald-500 tabular-nums font-mono">₹{(auction.currentLowest / 100000).toFixed(2)}L</p>
                 </div>
-              </div>
-              <span className="px-2.5 py-1 bg-foreground/5 text-muted border border-foreground/5 rounded-md text-[10px] font-bold uppercase tracking-wider">
-                {vendor.type}
-              </span>
-            </div>
-
-            <div className="space-y-3 mb-6 flex-1">
-              <div className="flex items-center gap-3 text-sm text-foreground/80">
-                <MapPin className="w-4 h-4 text-muted" /> {vendor.location}
-              </div>
-              <div className="flex items-center gap-3 text-sm text-foreground/80">
-                <Mail className="w-4 h-4 text-muted" /> <span className="truncate">{vendor.email}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-foreground/80">
-                <Phone className="w-4 h-4 text-muted" /> {vendor.phone}
-              </div>
-            </div>
-
-            <div className="p-4 bg-foreground/5 rounded-2xl border border-foreground/5 grid grid-cols-2 gap-4 items-center">
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-muted font-bold mb-1">Performance</p>
-                <div className="w-20 h-20 relative -ml-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart 
-                      cx="50%" cy="50%" 
-                      innerRadius="60%" outerRadius="100%" 
-                      barSize={6} 
-                      data={[{ name: 'Score', value: vendor.rating, fill: vendor.color }]}
-                      startAngle={90} endAngle={-270}
-                    >
-                      <RadialBar background={{ fill: 'var(--glass-border)' }} dataKey="value" cornerRadius={10} />
-                    </RadialBarChart>
-                  </ResponsiveContainer>
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="text-sm font-bold font-mono" style={{ color: vendor.color }}>{vendor.rating}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-3 text-right">
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted font-bold mb-0.5">Active Contracts</p>
-                  <p className="text-lg font-bold text-foreground flex items-center justify-end gap-1">
-                    <FileText className="w-4 h-4 text-indigo-500" /> {vendor.activeContracts}
+                <div className="text-right">
+                  <p className="micro-label mb-1">{auction.status === "closed" ? "Awarded" : "Closing In"}</p>
+                  <p className={`text-sm font-bold ${auction.status === "closing" ? "text-amber-500" : "text-foreground"}`}>
+                    {auction.status === "closing" && <Timer className="w-3 h-3 inline mr-1" />}
+                    {auction.closingIn}
                   </p>
                 </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted font-bold mb-0.5">YTD Spend</p>
-                  <p className="text-sm font-mono font-bold text-emerald-500">{vendor.spend}</p>
-                </div>
               </div>
+
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--glass-border)]">
+                <span className="text-xs text-muted">{auction.totalBids} bids</span>
+                <span className="text-xs font-bold text-emerald-500 flex items-center gap-0.5">
+                  <TrendingDown className="w-3 h-3" />
+                  ₹{(aSavings / 1000).toFixed(0)}K saved
+                </span>
+              </div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
+
+      {/* Auction Detail */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
+        {/* Bid Table */}
+        <motion.div className="lg:col-span-2 liquid-glass rounded-3xl p-6 flex flex-col">
+          <div className="flex items-center justify-between mb-4 border-b border-[var(--glass-border)] pb-4">
+            <div>
+              <h2 className="text-lg font-extrabold text-foreground tracking-tight flex items-center gap-2">
+                <Gavel className={`w-5 h-5 ${cfg.color}`} /> Bid Ladder — {activeAuction.id}
+              </h2>
+              <p className="text-xs text-muted mt-1">{activeAuction.title}</p>
             </div>
-          </motion.div>
-        ))}
+            {activeAuction.status !== "closed" && (
+              <div className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full ${cfg.dot} animate-pulse`} />
+                <span className={`micro-label ${cfg.color}`}>{cfg.label}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 space-y-3 overflow-y-auto scrollbar-hide">
+            {activeAuction.bids.map((bid, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.06, ...snappySpring }}
+                className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                  bid.isLowest
+                    ? 'bg-emerald-500/[0.06] border-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)]'
+                    : 'border-[var(--glass-border)] hover:bg-foreground/[0.03]'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  {/* Rank */}
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm ${
+                    bid.rank === 1 ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                    bid.rank === 2 ? 'bg-sky-500/10 text-sky-500 border border-sky-500/20' :
+                    'bg-foreground/[0.04] text-muted border border-[var(--glass-border)]'
+                  }`}>
+                    {bid.rank === 1 ? <Award className="w-5 h-5" /> : `#${bid.rank}`}
+                  </div>
+
+                  <div>
+                    <h4 className={`font-bold text-sm ${bid.isLowest ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>{bid.vendor}</h4>
+                    <p className="text-xs text-muted">{bid.time}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className={`font-mono font-extrabold text-lg tabular-nums ${bid.isLowest ? 'text-emerald-500' : 'text-foreground'}`}>
+                      ₹{bid.amount.toLocaleString('en-IN')}
+                    </p>
+                    {!bid.isLowest && (
+                      <p className="text-xs text-rose-500 font-mono">
+                        +₹{(bid.amount - activeAuction.currentLowest).toLocaleString('en-IN')}
+                      </p>
+                    )}
+                  </div>
+
+                  {bid.isLowest && (
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="px-2 py-1 bg-emerald-500 text-white micro-label rounded-lg"
+                    >
+                      L1
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Savings Summary */}
+        <motion.div className="liquid-glass rounded-3xl p-6 flex flex-col gap-5">
+          <h3 className="micro-label">Auction Summary</h3>
+
+          <div className="p-5 rounded-2xl bg-foreground/[0.03] border border-[var(--glass-border)] text-center">
+            <p className="micro-label mb-2">Reserve Price</p>
+            <p className="text-2xl font-extrabold text-foreground tabular-nums font-mono line-through decoration-muted/30">
+              ₹{activeAuction.reservePrice.toLocaleString('en-IN')}
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-emerald-500/[0.06] border border-emerald-500/20 text-center">
+            <p className="micro-label text-emerald-600 dark:text-emerald-400 mb-2">Current Lowest Bid</p>
+            <p className="text-3xl font-extrabold text-emerald-500 tabular-nums font-mono">
+              ₹{activeAuction.currentLowest.toLocaleString('en-IN')}
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-[var(--accent)]/[0.06] border border-[var(--accent)]/15 text-center">
+            <p className="micro-label text-[var(--accent)] mb-2">Procurement Savings</p>
+            <div className="flex items-center justify-center gap-3">
+              <p className="text-2xl font-extrabold text-[var(--accent)] tabular-nums font-mono">
+                ₹{savings.toLocaleString('en-IN')}
+              </p>
+              <span className="px-2 py-1 bg-[var(--accent)]/10 text-[var(--accent)] micro-label rounded-lg">
+                -{savingsPct}%
+              </span>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-foreground/[0.03] border border-[var(--glass-border)]">
+            <p className="micro-label mb-2">Bid Activity</p>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted">Total Bids</span>
+              <span className="font-bold text-foreground">{activeAuction.totalBids}</span>
+            </div>
+            <div className="flex justify-between text-sm mt-2">
+              <span className="text-muted">Unique Vendors</span>
+              <span className="font-bold text-foreground">{activeAuction.bids.length}</span>
+            </div>
+          </div>
+
+          {activeAuction.status !== "closed" && (
+            <motion.button
+              whileHover={organicInteractions.hover}
+              whileTap={organicInteractions.tap}
+              className="w-full py-3.5 bg-[var(--accent)] text-white font-bold text-sm rounded-xl glow-accent flex items-center justify-center gap-2 cursor-pointer mt-auto"
+            >
+              <Shield className="w-4 h-4" /> Award to L1 Bidder
+            </motion.button>
+          )}
+        </motion.div>
       </div>
     </div>
   );

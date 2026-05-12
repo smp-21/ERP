@@ -24,40 +24,74 @@ The platform is divided into comprehensive enterprise departments, housing a tot
 - **Help & Support**: User guides and system assistance.
 
 ### 🏭 Manufacturing & Production
-- **Manufacturing**: Core production floor operations.
-- **Bill of Materials (BOM)**: Recipe and component management.
+- **Digital Twin Shop Floor**: 2D interactive factory map with real-time machine telemetry, zone-based layout, and conveyor animations.
+- **Interactive BOM Exploder**: Visual node tree with live cost-impact simulation — swap components and watch ₹ ripple through assemblies.
+- **Predictive Maintenance AI**: ML-powered degradation forecasting with health score rings, failure probability, and AI work order generation.
 - **Quality Control**: Inspection, standards, and compliance tracking.
 - **Asset & Plant**: Maintenance and plant asset lifecycle.
 
 ### 📦 Inventory & Warehouse
 - **Inventory Management**: Real-time stock tracking and valuation.
-- **Dispatch & Delivery**: Outbound logistics and shipping.
+- **Spatial Warehouse Heatmap**: Visual grid of warehouse shelves — fast-moving stock glows "hot" (Indigo), dead stock is "cold" (Slate).
+- **Supply Chain Disruption Radar**: Multi-axis Recharts RadarChart alerting to transit delays with severity-based corridor tracking.
 - **Export & Logistics**: International shipping and customs documentation.
 - **Spare Parts**: Specialized inventory for maintenance and repairs.
 
 ### 🛒 Purchase & Procurement
 - **Purchase Management**: Purchase Orders (PO) and requisitions.
-- **Vendor Management**: Supplier profiles, ratings, and ledgers.
+- **Vendor Self-Service Auction**: Transparent reverse-auction portal with live bid ladders, L1 pulsing badges, and procurement savings calculators.
+- **Smart Contract Risk Analyzer**: AI-powered document viewer highlighting risky compliance clauses (red/amber/green) with automated risk scoring.
 - **Quotation & Estimation**: Costing and RFQ management.
 
 ### 🤝 Sales & Order Management
 - **Sales & Orders**: Sales Order (SO) processing and tracking.
-- **CRM & Leads**: Pipeline, prospect tracking, and conversions.
-- **Customer Management**: Client 360-view and master data.
+- **Drag-and-Drop Revenue Funnel**: Fluid Kanban pipeline — dragging a lead to "Closed Won" triggers a celebratory micro-animation and recalculates projected revenue.
+- **Client Sentiment Radar**: Customer cards with AI-driven flight-risk warning gradients based on interaction sentiment analysis and revenue trajectory.
 - **After-Sales & Service**: Support ticketing, warranties, and service operations.
 
 ### 💰 Finance & Accounts
-- **Accounts & Finance**: Core ledger, payables, and receivables.
+- **Cash Flow Time-Machine**: Interactive timeline slider that dynamically recalculates and animates projected bank balances based on expected payables/receivables.
 - **GST & Tax**: Compliance, tax rules, and automated calculations.
-- **Reports & MIS**: Management Information Systems and financial reporting.
+- **Automated Anomaly Detection**: AI flags duplicate invoices, GST mismatches, and amount variances with glowing severity badges before filing.
 
 ### 👥 HR & Payroll
-- **HR & Payroll**: Employee compensation and benefits.
+- **Flight-Risk Predictor**: Risk meters correlating stagnant salary and erratic leave patterns to flag employees preparing to resign.
+- **Gamified Skill Matrix**: Recharts RadarChart visualizing current skills vs promotion requirements with readiness rings and earned badges.
 - **Attendance & Leave**: Time-tracking and leave management.
 - **User & Roles**: Enterprise security, RBAC (Role-Based Access Control).
 
 ### 🏛️ Government & Tenders
-- **GeM Tenders**: Discover government electronic marketplace tenders matched to your niche, apply, and track application status.
+- **GeM Bid Probability Scorer**: AI gauge chart analyzing past GeM tender data to display win percentage based on compliance, pricing history, and factor analysis.
+
+---
+
+## 🧠 Liquid Glass Intelligence Expansion
+
+The platform has been enhanced with **16 advanced, AI-driven modules** that inject predictive intelligence, spatial visualization, and interactive simulation across every department.
+
+### Phase 1 — Core Intelligence (5 Modules)
+| Module | Route | Capability |
+|--------|-------|------------|
+| AI Command Agent | Global (Topbar) | Natural language search — "Show me delayed POs over ₹50K" returns AI summaries |
+| 3D System Topology | `/dashboard` | Interactive node graph of infrastructure health with latency/CPU telemetry |
+| Digital Twin Shop Floor | `/manufacturing/production` | 2D factory map with machine status pulsing and conveyor animations |
+| Predictive Maintenance AI | `/manufacturing/maintenance` | Degradation forecast charts with failure threshold zones |
+| Interactive BOM Exploder | `/manufacturing/bom` | Component swap simulator with cost-ripple across assemblies |
+
+### Phase 2 — Full Intelligence Suite (11 Modules)
+| Module | Route | Capability |
+|--------|-------|------------|
+| Spatial Warehouse Heatmap | `/inventory/warehouse` | Velocity-coded shelf grid (Hot/Warm/Cool/Cold) with value inspector |
+| Supply Chain Disruption Radar | `/inventory/dispatch` | Multi-axis risk radar with severity-based corridor alerts |
+| Vendor Self-Service Auction | `/purchase/vendors` | Reverse-auction bid ladder with L1 badges and savings calculator |
+| Smart Contract Risk Analyzer | `/purchase/contracts` | AI clause scanner with risk-scored document viewer |
+| Client Sentiment Radar | `/sales/customers` | Flight-risk detection with sentiment rings and revenue trajectories |
+| Revenue Pipeline (Kanban) | `/sales/crm` | Drag-and-drop CRM with celebration animations on deal close |
+| Cash Flow Time-Machine | `/finance/accounts` | Interactive slider projecting bank balances over 30-day windows |
+| Automated Anomaly Detection | `/finance/reports` | Duplicate invoices, GST mismatches, and variance flagging |
+| Gamified Skill Matrix | `/hr/users` | Radar chart of skills vs promotion requirements with gap analysis |
+| Flight-Risk Predictor | `/hr/payroll` | Salary stagnation + leave anomaly correlation for attrition prediction |
+| GeM Bid Probability Scorer | `/tenders` | AI win-probability gauge with compliance/pricing/track record breakdown |
 
 ## 🚀 Tech Stack
 

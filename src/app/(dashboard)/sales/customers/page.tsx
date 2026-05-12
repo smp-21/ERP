@@ -3,195 +3,309 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GlassPageHeader } from "@/components/ui/GlassPageHeader";
-import { Building2, Search, MapPin, Mail, Phone, ExternalLink, Activity, FileText, IndianRupee, TrendingUp, Calendar, ChevronRight } from "lucide-react";
-import { organicInteractions, liquidSpringPhysics } from "@/lib/motion";
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
+import {
+  Building2, Search, AlertTriangle, TrendingUp, TrendingDown,
+  Heart, MessageCircle, Calendar, IndianRupee, ChevronRight, Phone, Mail, Shield, Zap
+} from "lucide-react";
+import { organicInteractions, liquidSpringPhysics, snappySpring, glassPanelVariants, childItemVariants } from "@/lib/motion";
 
-const CLIENTS = [
-  { id: "CL-892", name: "Reliance Industries", type: "Enterprise", status: "Active", ltv: "₹14.2Cr", since: "2021", location: "Mumbai, MH", email: "procurement@ril.com", phone: "+91 22 2278 5000" },
-  { id: "CL-893", name: "Tata Motors", type: "Enterprise", status: "Active", ltv: "₹9.8Cr", since: "2022", location: "Pune, MH", email: "supplychain@tatamotors.com", phone: "+91 20 6613 1111" },
-  { id: "CL-894", name: "L&T Construction", type: "Enterprise", status: "At Risk", ltv: "₹18.5Cr", since: "2019", location: "Chennai, TN", email: "vendor.mgmt@lntecc.com", phone: "+91 44 2252 6000" },
-  { id: "CL-895", name: "Adani Power", type: "Mid-Market", status: "Active", ltv: "₹3.1Cr", since: "2024", location: "Ahmedabad, GJ", email: "contracts@adani.com", phone: "+91 79 2555 5555" },
-  { id: "CL-896", name: "Hindalco", type: "Mid-Market", status: "Inactive", ltv: "₹1.2Cr", since: "2023", location: "Kolkata, WB", email: "purchase@hindalco.com", phone: "+91 33 2280 9810" },
+interface Client {
+  id: string;
+  name: string;
+  type: string;
+  sentiment: "positive" | "neutral" | "at-risk" | "churning";
+  sentimentScore: number;
+  ltv: string;
+  since: string;
+  lastContact: string;
+  location: string;
+  email: string;
+  phone: string;
+  riskFactors: string[];
+  revenueHistory: { month: string; amount: number }[];
+}
+
+const CLIENTS: Client[] = [
+  {
+    id: "CL-892", name: "Reliance Industries", type: "Enterprise", sentiment: "positive", sentimentScore: 92,
+    ltv: "₹14.2Cr", since: "2021", lastContact: "2 days ago", location: "Mumbai, MH",
+    email: "procurement@ril.com", phone: "+91 22 2278 5000", riskFactors: [],
+    revenueHistory: [{ month: "Jan", amount: 180 }, { month: "Feb", amount: 220 }, { month: "Mar", amount: 195 }, { month: "Apr", amount: 260 }, { month: "May", amount: 310 }],
+  },
+  {
+    id: "CL-893", name: "Tata Motors", type: "Enterprise", sentiment: "neutral", sentimentScore: 68,
+    ltv: "₹9.8Cr", since: "2022", lastContact: "8 days ago", location: "Pune, MH",
+    email: "supplychain@tatamotors.com", phone: "+91 20 6613 1111", riskFactors: ["Delayed response to last RFQ"],
+    revenueHistory: [{ month: "Jan", amount: 140 }, { month: "Feb", amount: 155 }, { month: "Mar", amount: 120 }, { month: "Apr", amount: 145 }, { month: "May", amount: 130 }],
+  },
+  {
+    id: "CL-894", name: "L&T Construction", type: "Enterprise", sentiment: "at-risk", sentimentScore: 34,
+    ltv: "₹18.5Cr", since: "2019", lastContact: "28 days ago", location: "Chennai, TN",
+    email: "vendor.mgmt@lntecc.com", phone: "+91 44 2252 6000",
+    riskFactors: ["No orders in 45 days", "Competitor quoting 12% lower", "Support ticket unresolved (14 days)"],
+    revenueHistory: [{ month: "Jan", amount: 280 }, { month: "Feb", amount: 240 }, { month: "Mar", amount: 180 }, { month: "Apr", amount: 90 }, { month: "May", amount: 40 }],
+  },
+  {
+    id: "CL-895", name: "Adani Power", type: "Mid-Market", sentiment: "positive", sentimentScore: 85,
+    ltv: "₹3.1Cr", since: "2024", lastContact: "1 day ago", location: "Ahmedabad, GJ",
+    email: "contracts@adani.com", phone: "+91 79 2555 5555", riskFactors: [],
+    revenueHistory: [{ month: "Jan", amount: 45 }, { month: "Feb", amount: 60 }, { month: "Mar", amount: 72 }, { month: "Apr", amount: 88 }, { month: "May", amount: 95 }],
+  },
+  {
+    id: "CL-896", name: "Hindalco", type: "Mid-Market", sentiment: "churning", sentimentScore: 12,
+    ltv: "₹1.2Cr", since: "2023", lastContact: "62 days ago", location: "Kolkata, WB",
+    email: "purchase@hindalco.com", phone: "+91 33 2280 9810",
+    riskFactors: ["Zero contact in 60+ days", "Switched primary vendor", "Contract expiry in 15 days", "NPS score dropped to 2"],
+    revenueHistory: [{ month: "Jan", amount: 35 }, { month: "Feb", amount: 28 }, { month: "Mar", amount: 15 }, { month: "Apr", amount: 5 }, { month: "May", amount: 0 }],
+  },
 ];
 
-const ORDER_HISTORY = [
-  { id: "ORD-001", date: "05 May 2026", amount: "₹45,00,000", status: "Delivered" },
-  { id: "ORD-002", date: "12 Apr 2026", amount: "₹12,50,000", status: "Delivered" },
-  { id: "ORD-003", date: "28 Mar 2026", amount: "₹89,00,000", status: "Delivered" },
-];
+function getSentimentConfig(sentiment: string) {
+  switch(sentiment) {
+    case "positive": return { label: "Healthy", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", glow: "shadow-[0_0_20px_rgba(16,185,129,0.2)]", gradient: "from-emerald-500/10 to-transparent", ringColor: "#10b981" };
+    case "neutral": return { label: "Neutral", color: "text-sky-500", bg: "bg-sky-500/10", border: "border-sky-500/20", glow: "", gradient: "from-sky-500/5 to-transparent", ringColor: "#0ea5e9" };
+    case "at-risk": return { label: "Flight Risk", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", glow: "shadow-[0_0_20px_rgba(245,158,11,0.25)]", gradient: "from-amber-500/10 to-transparent", ringColor: "#f59e0b" };
+    case "churning": return { label: "Churning", color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/20", glow: "shadow-[0_0_24px_rgba(244,63,94,0.3)]", gradient: "from-rose-500/15 to-transparent", ringColor: "#f43f5e" };
+    default: return { label: "", color: "", bg: "", border: "", glow: "", gradient: "", ringColor: "" };
+  }
+}
 
-const REVENUE_DATA = [
-  { month: "Jan", amount: 45 },
-  { month: "Feb", amount: 52 },
-  { month: "Mar", amount: 38 },
-  { month: "Apr", amount: 65 },
-  { month: "May", amount: 58 },
-  { month: "Jun", amount: 80 },
-];
-
-export default function SalesCustomersPage() {
-  const [activeClient, setActiveClient] = useState(CLIENTS[0].id);
-  const clientData = CLIENTS.find(c => c.id === activeClient);
+export default function ClientSentimentPage() {
+  const [selectedClient, setSelectedClient] = useState(CLIENTS[0].id);
+  const activeClient = CLIENTS.find(c => c.id === selectedClient)!;
+  const cfg = getSentimentConfig(activeClient.sentiment);
 
   return (
     <div className="flex flex-col h-full gap-6">
       <GlassPageHeader
-        title="Customer Management (360°)"
-        description="Enterprise client directory, lifetime value tracking, and relationship history."
-        breadcrumbs={[{ label: "Sales & Orders" }, { label: "Customers" }]}
+        title="Client Sentiment Radar"
+        description="AI-powered customer health scoring with flight-risk detection and revenue trajectory analysis."
+        breadcrumbs={[{ label: "Sales" }, { label: "Customers" }]}
+        actions={
+          <div className="flex items-center gap-3">
+            {["positive", "neutral", "at-risk", "churning"].map(s => {
+              const scfg = getSentimentConfig(s);
+              const count = CLIENTS.filter(c => c.sentiment === s).length;
+              return count > 0 ? (
+                <span key={s} className={`px-2.5 py-1 rounded-xl text-xs font-bold border ${scfg.bg} ${scfg.color} ${scfg.border}`}>
+                  {count} {scfg.label}
+                </span>
+              ) : null;
+            })}
+          </div>
+        }
       />
 
-      <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
-        {/* Left Pane: Client Directory */}
-        <div className="w-full lg:w-96 flex flex-col gap-4 h-full shrink-0">
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-background rounded-2xl border border-foreground/10 shadow-sm">
-            <Search className="w-5 h-5 text-muted" />
-            <input type="text" placeholder="Search clients by name or ID..." className="bg-transparent border-none outline-none text-sm w-full text-foreground" />
-          </div>
+      {/* Client Cards */}
+      <motion.div
+        variants={glassPanelVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
+      >
+        {CLIENTS.map((client) => {
+          const ccfg = getSentimentConfig(client.sentiment);
+          const isActive = selectedClient === client.id;
+          return (
+            <motion.div
+              key={client.id}
+              variants={childItemVariants}
+              whileHover={organicInteractions.hover}
+              whileTap={organicInteractions.tap}
+              onClick={() => setSelectedClient(client.id)}
+              className={`liquid-glass rounded-2xl p-4 cursor-pointer relative overflow-hidden transition-all group ${
+                isActive ? `ring-2 ring-[var(--accent)] ${ccfg.glow}` : ''
+              }`}
+            >
+              {/* Sentiment gradient overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-b ${ccfg.gradient} pointer-events-none`} />
 
-          <div className="liquid-glass rounded-3xl border border-foreground/10 flex-1 flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-foreground/10 bg-foreground/5 flex justify-between items-center">
-              <span className="text-sm font-bold text-foreground">All Clients</span>
-              <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-500 rounded text-xs font-bold">{CLIENTS.length}</span>
-            </div>
-            <div className="flex-1 overflow-y-auto p-2 space-y-1">
-              {CLIENTS.map((client) => (
-                <button
-                  key={client.id}
-                  onClick={() => setActiveClient(client.id)}
-                  className={`w-full text-left p-3 rounded-2xl transition-all duration-300 flex items-center justify-between group ${
-                    activeClient === client.id ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'hover:bg-foreground/5'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shrink-0 ${
-                      activeClient === client.id ? 'bg-white/20 text-white' : 'bg-foreground/10 text-foreground group-hover:scale-110 transition-transform'
-                    }`}>
-                      {client.name.charAt(0)}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className={`font-bold text-sm truncate ${activeClient === client.id ? 'text-white' : 'text-foreground'}`}>{client.name}</h3>
-                      <p className={`text-xs font-mono truncate ${activeClient === client.id ? 'text-white/70' : 'text-muted'}`}>{client.id}</p>
-                    </div>
+              {(client.sentiment === "at-risk" || client.sentiment === "churning") && (
+                <div className={`absolute top-0 left-0 right-0 h-1 ${client.sentiment === "churning" ? "bg-rose-500" : "bg-amber-500"}`} />
+              )}
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-mono text-[10px] text-muted">{client.id}</span>
+                  <span className={`micro-label ${ccfg.color}`}>{ccfg.label}</span>
+                </div>
+
+                <h4 className="font-bold text-foreground text-sm truncate mb-1">{client.name}</h4>
+                <p className="text-[10px] text-muted mb-3">{client.type}</p>
+
+                <div className="flex items-end justify-between">
+                  <div className={`text-2xl font-extrabold tabular-nums ${ccfg.color}`}>
+                    {client.sentimentScore}
                   </div>
-                  <ChevronRight className={`w-5 h-5 transition-transform ${activeClient === client.id ? 'text-white' : 'text-muted opacity-0 group-hover:opacity-100'}`} />
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+                  <div className="text-right">
+                    <p className="micro-label mb-0.5">LTV</p>
+                    <p className="font-mono text-xs font-bold text-foreground">{client.ltv}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
 
-        {/* Right Pane: 360 View */}
-        <div className="flex-1 liquid-glass rounded-3xl border border-foreground/10 flex flex-col overflow-hidden h-full relative">
+      {/* Client Detail */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
+        {/* Revenue + Sentiment Detail */}
+        <motion.div className="lg:col-span-2 liquid-glass rounded-3xl p-6 flex flex-col">
           <AnimatePresence mode="wait">
-            {clientData && (
-              <motion.div
-                key={clientData.id}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={liquidSpringPhysics}
-                className="flex-1 overflow-y-auto flex flex-col"
-              >
-                {/* 360 Header */}
-                <div className="p-8 border-b border-foreground/10 bg-gradient-to-br from-indigo-500/10 to-transparent">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-5">
-                      <div className="w-20 h-20 rounded-2xl bg-indigo-500 text-white flex items-center justify-center font-bold text-3xl shadow-xl shadow-indigo-500/30 border border-white/20">
-                        {clientData.name.charAt(0)}
-                      </div>
-                      <div>
-                        <h1 className="text-3xl font-bold text-foreground tracking-tight">{clientData.name}</h1>
-                        <div className="flex items-center gap-3 mt-2">
-                          <span className="px-2.5 py-1 bg-foreground/5 border border-foreground/10 rounded-md text-[10px] font-bold uppercase tracking-wider text-foreground/80">
-                            {clientData.type}
-                          </span>
-                          <span className={`px-2.5 py-1 border rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                            clientData.status === 'Active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                            clientData.status === 'At Risk' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
-                            'bg-muted/10 text-muted border-muted/20'
-                          }`}>
-                            {clientData.status}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <button className="px-4 py-2 bg-foreground text-background font-bold text-sm rounded-xl shadow-lg flex items-center gap-2">
-                      <ExternalLink className="w-4 h-4" /> View CRM Profile
-                    </button>
+            <motion.div
+              key={activeClient.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={snappySpring}
+              className="flex-1 flex flex-col"
+            >
+              <div className="flex items-start justify-between mb-6 pb-4 border-b border-[var(--glass-border)]">
+                <div className="flex items-center gap-4">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-extrabold ${cfg.bg} ${cfg.color} border ${cfg.border}`}>
+                    {activeClient.name.charAt(0)}
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-3 text-sm text-foreground/80 bg-background/50 p-3 rounded-xl border border-foreground/5"><MapPin className="w-4 h-4 text-indigo-500" /> {clientData.location}</div>
-                    <div className="flex items-center gap-3 text-sm text-foreground/80 bg-background/50 p-3 rounded-xl border border-foreground/5"><Mail className="w-4 h-4 text-indigo-500" /> {clientData.email}</div>
-                    <div className="flex items-center gap-3 text-sm text-foreground/80 bg-background/50 p-3 rounded-xl border border-foreground/5"><Phone className="w-4 h-4 text-indigo-500" /> {clientData.phone}</div>
+                  <div>
+                    <h2 className="text-xl font-extrabold text-foreground">{activeClient.name}</h2>
+                    <p className="text-sm text-muted">{activeClient.type} • Since {activeClient.since} • {activeClient.location}</p>
                   </div>
                 </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                    Score: {activeClient.sentimentScore}
+                  </span>
+                </div>
+              </div>
 
-                <div className="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Stats Column */}
-                  <div className="space-y-4">
-                    <div className="p-5 rounded-2xl border border-foreground/10 bg-foreground/5">
-                      <p className="text-[10px] uppercase tracking-wider text-muted font-bold mb-1">Lifetime Value (LTV)</p>
-                      <p className="text-3xl font-sans font-bold text-emerald-500">{clientData.ltv}</p>
-                    </div>
-                    <div className="p-5 rounded-2xl border border-foreground/10 bg-foreground/5">
-                      <p className="text-[10px] uppercase tracking-wider text-muted font-bold mb-1">Client Since</p>
-                      <p className="text-3xl font-sans font-bold text-foreground">{clientData.since}</p>
-                    </div>
-                    <div className="p-5 rounded-2xl border border-indigo-500/30 bg-indigo-500/5">
-                      <p className="text-[10px] uppercase tracking-wider text-indigo-500 font-bold mb-1">Active Contracts</p>
-                      <p className="text-3xl font-sans font-bold text-indigo-500">2 <span className="text-sm font-medium opacity-70">Active</span></p>
-                    </div>
-                  </div>
-
-                  {/* Charts & Timeline */}
-                  <div className="lg:col-span-2 space-y-8">
-                    {/* Revenue Chart */}
-                    <div className="h-48">
-                      <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-emerald-500" /> Revenue Trend (Last 6 Months)</h3>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={REVENUE_DATA} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                          <defs>
-                            <linearGradient id="colorRevLtv" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <Tooltip cursor={{ stroke: 'var(--glass-border)' }} contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '12px', border: '1px solid var(--glass-border)' }} />
-                          <Area type="monotone" dataKey="amount" stroke="#10b981" strokeWidth={3} fill="url(#colorRevLtv)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Timeline */}
-                    <div>
-                      <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2"><Activity className="w-4 h-4 text-indigo-500" /> Recent Order History</h3>
-                      <div className="space-y-3">
-                        {ORDER_HISTORY.map((order, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-4 rounded-xl border border-foreground/10 hover:bg-foreground/5 transition-colors">
-                            <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center"><FileText className="w-5 h-5" /></div>
-                              <div>
-                                <p className="font-mono text-sm font-bold text-foreground">{order.id}</p>
-                                <p className="text-xs text-muted flex items-center gap-1"><Calendar className="w-3 h-3" /> {order.date}</p>
+              {/* Revenue Chart */}
+              <div className="mb-4">
+                <h3 className="micro-label mb-3">Revenue Trajectory (₹ Lakhs)</h3>
+                <div className="h-[200px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={activeClient.revenueHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="sentGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={cfg.ringColor} stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor={cfg.ringColor} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--glass-border)" />
+                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} />
+                      <Tooltip
+                        content={({ active, payload, label }) => {
+                          if (active && payload && payload.length) {
+                            return (
+                              <div className="liquid-glass-elevated rounded-xl p-3 shadow-xl text-sm">
+                                <p className="font-bold text-foreground mb-1">{label}</p>
+                                <p className="font-mono" style={{ color: cfg.ringColor }}>₹{payload[0].value}L</p>
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-mono font-bold text-foreground text-base">{order.amount}</p>
-                              <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">{order.status}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Area type="monotone" dataKey="amount" stroke={cfg.ringColor} strokeWidth={3} fill="url(#sentGrad)" dot={{ fill: cfg.ringColor, strokeWidth: 2, r: 4 }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
-              </motion.div>
-            )}
+              </div>
+
+              {/* Contact */}
+              <div className="flex gap-3 mt-auto">
+                <div className="flex-1 p-3 rounded-xl bg-foreground/[0.03] border border-[var(--glass-border)] flex items-center gap-2 text-sm">
+                  <Mail className="w-4 h-4 text-muted" />
+                  <span className="text-foreground/80 truncate">{activeClient.email}</span>
+                </div>
+                <div className="flex-1 p-3 rounded-xl bg-foreground/[0.03] border border-[var(--glass-border)] flex items-center gap-2 text-sm">
+                  <Phone className="w-4 h-4 text-muted" />
+                  <span className="text-foreground/80">{activeClient.phone}</span>
+                </div>
+                <div className="p-3 rounded-xl bg-foreground/[0.03] border border-[var(--glass-border)] flex items-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4 text-muted" />
+                  <span className="text-foreground/80">{activeClient.lastContact}</span>
+                </div>
+              </div>
+            </motion.div>
           </AnimatePresence>
-        </div>
+        </motion.div>
+
+        {/* Risk Panel */}
+        <motion.div className="liquid-glass rounded-3xl p-6 flex flex-col gap-5">
+          {/* Sentiment Ring */}
+          <div className="flex flex-col items-center py-4">
+            <div className="relative w-28 h-28">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--glass-border)" strokeWidth="6" />
+                <motion.circle
+                  cx="50" cy="50" r="42" fill="none"
+                  stroke={cfg.ringColor}
+                  strokeWidth="6" strokeLinecap="round"
+                  strokeDasharray={`${activeClient.sentimentScore * 2.64} 264`}
+                  initial={{ strokeDasharray: "0 264" }}
+                  animate={{ strokeDasharray: `${activeClient.sentimentScore * 2.64} 264` }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className={`text-2xl font-extrabold tabular-nums ${cfg.color}`}>{activeClient.sentimentScore}</span>
+                <span className="micro-label">Sentiment</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Risk Factors */}
+          {activeClient.riskFactors.length > 0 ? (
+            <div>
+              <h3 className="micro-label text-rose-500 mb-3 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" /> Risk Factors
+              </h3>
+              <div className="space-y-2">
+                {activeClient.riskFactors.map((factor, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: 8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.08, ...snappySpring }}
+                    className="p-3 rounded-xl bg-rose-500/[0.06] border border-rose-500/15 text-xs text-foreground font-medium flex items-start gap-2"
+                  >
+                    <AlertTriangle className="w-3 h-3 text-rose-500 shrink-0 mt-0.5" />
+                    {factor}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 rounded-2xl bg-emerald-500/[0.06] border border-emerald-500/15 text-center">
+              <Shield className="w-6 h-6 text-emerald-500 mx-auto mb-2" />
+              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">No Risk Factors</p>
+              <p className="text-[10px] text-muted mt-1">Healthy engagement pattern</p>
+            </div>
+          )}
+
+          {/* LTV */}
+          <div className="p-4 rounded-2xl bg-foreground/[0.03] border border-[var(--glass-border)]">
+            <p className="micro-label mb-1">Lifetime Value</p>
+            <p className="text-2xl font-extrabold text-[var(--accent)] tabular-nums font-mono">{activeClient.ltv}</p>
+          </div>
+
+          <motion.button
+            whileHover={organicInteractions.hover}
+            whileTap={organicInteractions.tap}
+            className={`w-full py-3.5 font-bold text-sm rounded-xl flex items-center justify-center gap-2 cursor-pointer mt-auto ${
+              activeClient.sentiment === "churning" || activeClient.sentiment === "at-risk"
+                ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20'
+                : 'bg-[var(--accent)] text-white glow-accent'
+            }`}
+          >
+            {activeClient.sentiment === "churning" || activeClient.sentiment === "at-risk"
+              ? <><Zap className="w-4 h-4" /> Initiate Retention Action</>
+              : <><Heart className="w-4 h-4" /> Schedule Review</>
+            }
+          </motion.button>
+        </motion.div>
       </div>
     </div>
   );

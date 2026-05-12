@@ -1,72 +1,254 @@
 @import "tailwindcss";
 
+/* =========================================================
+   LIQUID GLASS ERP — GLOBAL DESIGN SYSTEM
+   MNC-Grade Color Palettes + Glass Physics Utilities
+   ========================================================= */
+
 @theme {
+  /* Core Semantic Tokens */
   --color-obsidian: #050505;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --color-accent: var(--accent);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-surface: var(--glass-bg);
+
+  /* Typography */
+  --font-sans: var(--font-geist-sans), "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
 @layer base {
+  /* =========================================
+     MNC LIGHT THEME
+     Canvas: Slate-50, Surfaces: White/60
+     Accents: Deep Indigo + Azure
+     ========================================= */
   :root {
-    /* MNC Light Theme */
-    --background: #F1F5F9;
+    --background: #F8FAFC;
     --foreground: #0F172A;
-    --muted: #475569;
-    --glass-bg: rgba(255, 255, 255, 0.6);
-    --glass-border: rgba(203, 213, 225, 0.3); /* border-slate-300/30 equivalent */
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --muted: #64748B;
+    --accent: #4338CA;
+    --accent-secondary: #0284C7;
+
+    /* Glass Material */
+    --glass-bg: rgba(255, 255, 255, 0.60);
+    --glass-bg-hover: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(148, 163, 184, 0.25);
+    --glass-shadow: 0 8px 32px rgba(15, 23, 42, 0.06), 0 2px 8px rgba(15, 23, 42, 0.04);
+    --glass-shadow-elevated: 0 24px 48px rgba(15, 23, 42, 0.10), 0 8px 16px rgba(15, 23, 42, 0.06);
+
+    /* Specular Edge Simulation */
+    --specular-top: rgba(255, 255, 255, 0.8);
+    --specular-left: rgba(255, 255, 255, 0.4);
+    --specular-right: rgba(255, 255, 255, 0.1);
+    --specular-bottom: transparent;
+
+    /* Ambient Glow */
+    --glow-accent: rgba(67, 56, 202, 0.15);
+    --glow-accent-secondary: rgba(2, 132, 199, 0.12);
+
+    /* Sidebar */
+    --sidebar-bg: rgba(255, 255, 255, 0.50);
   }
 
+  /* =========================================
+     MNC DARK THEME (OBSIDIAN)
+     Canvas: #050505-#0A0A0A, Surfaces: #121212/50
+     Accents: Electric Violet + Cyan
+     ========================================= */
   .dark {
-    /* MNC Dark (Obsidian) Theme */
-    --background: #050505;
+    --background: #060606;
     --foreground: #F8FAFC;
     --muted: #94A3B8;
-    --glass-bg: rgba(18, 18, 18, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --accent: #7C3AED;
+    --accent-secondary: #06B6D4;
+
+    /* Glass Material */
+    --glass-bg: rgba(18, 18, 18, 0.50);
+    --glass-bg-hover: rgba(24, 24, 24, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.20);
+    --glass-shadow-elevated: 0 24px 64px rgba(0, 0, 0, 0.60), 0 8px 24px rgba(0, 0, 0, 0.35);
+
+    /* Specular Edge Simulation */
+    --specular-top: rgba(255, 255, 255, 0.12);
+    --specular-left: rgba(255, 255, 255, 0.06);
+    --specular-right: rgba(255, 255, 255, 0.02);
+    --specular-bottom: transparent;
+
+    /* Ambient Glow */
+    --glow-accent: rgba(124, 58, 237, 0.20);
+    --glow-accent-secondary: rgba(6, 182, 212, 0.15);
+
+    /* Sidebar */
+    --sidebar-bg: rgba(12, 12, 12, 0.60);
   }
-  
+
+  /* =========================================
+     BODY RESET
+     ========================================= */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--glass-border) transparent;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
+
+  /* Custom Scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
   }
 }
 
 @layer utilities {
-  /* Liquid Glass Core Utility */
+  /* =========================================
+     LIQUID GLASS — Core Material
+     Refraction: 40px blur, specular edges,
+     layered depth shadows
+     ========================================= */
   .liquid-glass {
     background-color: var(--glass-bg);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(40px) saturate(1.4);
+    -webkit-backdrop-filter: blur(40px) saturate(1.4);
+    border-top: 1px solid var(--specular-top);
+    border-left: 1px solid var(--specular-left);
+    border-right: 1px solid var(--specular-right);
+    border-bottom: 1px solid var(--specular-bottom);
     background-clip: padding-box;
     box-shadow: var(--glass-shadow);
+    transition: box-shadow 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
   }
 
-  /* Liquid Glass Dark (for extreme depth or modals) */
-  .liquid-glass-dark {
-    background-color: rgba(18, 18, 18, 0.8);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+  .liquid-glass:hover {
+    box-shadow: var(--glass-shadow-elevated);
+    background-color: var(--glass-bg-hover);
+  }
+
+  /* Elevated Glass — for modals, drawers, overlays */
+  .liquid-glass-elevated {
+    background-color: var(--glass-bg-hover);
+    backdrop-filter: blur(48px) saturate(1.6);
+    -webkit-backdrop-filter: blur(48px) saturate(1.6);
+    border-top: 1px solid var(--specular-top);
+    border-left: 1px solid var(--specular-left);
+    border-right: 1px solid var(--specular-right);
+    border-bottom: 1px solid var(--specular-bottom);
     background-clip: padding-box;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    box-shadow: var(--glass-shadow-elevated);
   }
 
-  /* Specular Highlight only utility */
+  /* Subtle Glass — inner panels, cards within cards */
+  .liquid-glass-subtle {
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  /* =========================================
+     SPECULAR HIGHLIGHTS
+     ========================================= */
   .specular-edge {
-    border-top: 1px solid var(--glass-border);
+    border-top: 1px solid var(--specular-top);
+    border-left: 1px solid var(--specular-left);
   }
 
-  /* Muted Text */
+  .specular-edge-full {
+    border-top: 1px solid var(--specular-top);
+    border-left: 1px solid var(--specular-left);
+    border-right: 1px solid var(--specular-right);
+    border-bottom: 1px solid var(--specular-bottom);
+  }
+
+  /* =========================================
+     TEXT UTILITIES
+     ========================================= */
   .text-muted {
     color: var(--muted);
+  }
+
+  .text-accent {
+    color: var(--accent);
+  }
+
+  .text-accent-secondary {
+    color: var(--accent-secondary);
+  }
+
+  /* =========================================
+     ACCENT GLOW EFFECTS
+     ========================================= */
+  .glow-accent {
+    box-shadow: 0 0 24px var(--glow-accent), 0 0 8px var(--glow-accent);
+  }
+
+  .glow-accent-secondary {
+    box-shadow: 0 0 24px var(--glow-accent-secondary), 0 0 8px var(--glow-accent-secondary);
+  }
+
+  /* =========================================
+     GLASS HOVER ROW
+     For data grids and table rows
+     ========================================= */
+  .glass-hover-row {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .glass-hover-row:hover {
+    background-color: var(--glass-bg);
+    box-shadow: inset 0 1px 0 var(--specular-top);
+  }
+
+  /* =========================================
+     MICRO-LABEL TYPOGRAPHY
+     ========================================= */
+  .micro-label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* =========================================
+     SCROLLBAR HIDE
+     ========================================= */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* =========================================
+     CANVAS GRADIENT (subtle ambient tint)
+     ========================================= */
+  .canvas-gradient {
+    background: 
+      radial-gradient(ellipse at 20% 0%, var(--glow-accent) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, var(--glow-accent-secondary) 0%, transparent 50%),
+      var(--background);
   }
 }

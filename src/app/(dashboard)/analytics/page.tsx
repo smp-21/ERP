@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { GlassPageHeader } from "@/components/ui/GlassPageHeader";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Activity, TrendingUp, Users, Factory, ArrowUpRight } from "lucide-react";
-import { organicInteractions } from "@/lib/motion";
+import { organicInteractions, glassPanelVariants, childItemVariants } from "@/lib/motion";
 
 const REVENUE_DATA = [
   { month: "Jan", revenue: 4000, cost: 2400 },
@@ -36,11 +36,11 @@ const RESOURCE_DATA = [
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="liquid-glass rounded-xl p-3 shadow-xl border border-foreground/10 text-sm min-w-[150px]">
-        <p className="font-sans font-bold text-foreground mb-2 pb-2 border-b border-foreground/10">{label}</p>
+      <div className="liquid-glass-elevated rounded-xl p-3 shadow-xl text-sm min-w-[150px]">
+        <p className="font-sans font-bold text-foreground mb-2 pb-2 border-b border-[var(--glass-border)]">{label}</p>
         <div className="space-y-1">
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="font-mono flex items-center gap-2" style={{ color: entry.color || entry.stroke || entry.fill }}>
+            <p key={index} className="font-mono text-xs flex items-center gap-2" style={{ color: entry.color || entry.stroke || entry.fill }}>
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color || entry.stroke || entry.fill }}></span>
               {entry.name}: {entry.value}
             </p>
@@ -61,34 +61,51 @@ export default function GlobalAnalyticsPage() {
         breadcrumbs={[{ label: "Global" }, { label: "Analytics" }]}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <motion.div
+        variants={glassPanelVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
         {[
-          { label: "Total Revenue (Q2)", value: "₹45.2L", trend: "+12.5%", icon: TrendingUp, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-          { label: "Active Employees", value: "342", trend: "+4", icon: Users, color: "text-indigo-500", bg: "bg-indigo-500/10" },
-          { label: "Production Volume", value: "8,940", trend: "+1.2%", icon: Factory, color: "text-sky-500", bg: "bg-sky-500/10" },
-          { label: "System Health", value: "99.9%", trend: "Stable", icon: Activity, color: "text-rose-500", bg: "bg-rose-500/10" },
+          { label: "Total Revenue (Q2)", value: "₹45.2L", trend: "+12.5%", icon: TrendingUp, color: "text-emerald-500 dark:text-emerald-400", glow: "bg-emerald-500" },
+          { label: "Active Employees", value: "342", trend: "+4", icon: Users, color: "text-violet-500 dark:text-violet-400", glow: "bg-violet-500" },
+          { label: "Production Volume", value: "8,940", trend: "+1.2%", icon: Factory, color: "text-sky-500 dark:text-sky-400", glow: "bg-sky-500" },
+          { label: "System Health", value: "99.9%", trend: "Stable", icon: Activity, color: "text-rose-500 dark:text-rose-400", glow: "bg-rose-500" },
         ].map((stat, i) => (
-          <motion.div key={i} whileHover={{ y: -4 }} className="liquid-glass rounded-2xl p-5 border border-foreground/10 flex flex-col gap-4 group">
-            <div className="flex justify-between items-start">
-              <div className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}>
+          <motion.div
+            key={i}
+            variants={childItemVariants}
+            whileHover={organicInteractions.hover}
+            whileTap={organicInteractions.tap}
+            className="liquid-glass rounded-2xl p-5 flex flex-col gap-4 group relative overflow-hidden cursor-default"
+          >
+            <div className={`absolute -right-8 -top-8 w-24 h-24 rounded-full blur-[40px] opacity-0 group-hover:opacity-25 transition-opacity duration-700 ${stat.glow}`} />
+            <div className="flex justify-between items-start relative z-10">
+              <div className={`p-2.5 rounded-xl bg-foreground/[0.04] border border-foreground/[0.06] ${stat.color}`}>
                 <stat.icon className="w-5 h-5" />
               </div>
-              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-1 micro-label text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                 {stat.trend} <ArrowUpRight className="w-3 h-3" />
               </span>
             </div>
-            <div>
-              <p className="text-3xl font-sans font-bold text-foreground tracking-tight">{stat.value}</p>
-              <p className="text-xs font-semibold text-muted uppercase tracking-wider mt-1">{stat.label}</p>
+            <div className="relative z-10">
+              <p className="text-3xl font-sans font-extrabold text-foreground tracking-tight">{stat.value}</p>
+              <p className="micro-label mt-1">{stat.label}</p>
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 flex-1 min-h-0">
         {/* Main Chart */}
-        <div className="xl:col-span-2 liquid-glass rounded-3xl p-6 border border-foreground/10 flex flex-col min-h-[350px]">
-          <h2 className="text-lg font-bold text-foreground mb-6">Revenue vs Opex Trend</h2>
+        <motion.div
+          variants={glassPanelVariants}
+          initial="hidden"
+          animate="visible"
+          className="xl:col-span-2 liquid-glass rounded-3xl p-6 flex flex-col min-h-[350px]"
+        >
+          <h2 className="text-lg font-bold text-foreground tracking-tight mb-6">Revenue vs Opex Trend</h2>
           <div className="flex-1 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={REVENUE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -111,12 +128,17 @@ export default function GlobalAnalyticsPage() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Side Charts */}
         <div className="flex flex-col gap-6">
-          <div className="liquid-glass rounded-3xl p-6 border border-foreground/10 flex-1 flex flex-col">
-            <h2 className="text-sm font-bold text-foreground mb-4">Resource Allocation</h2>
+          <motion.div
+            variants={glassPanelVariants}
+            initial="hidden"
+            animate="visible"
+            className="liquid-glass rounded-3xl p-6 flex-1 flex flex-col"
+          >
+            <h2 className="text-sm font-bold text-foreground tracking-tight mb-4">Resource Allocation</h2>
             <div className="flex-1 w-full relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -129,14 +151,19 @@ export default function GlobalAnalyticsPage() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-2xl font-bold text-foreground">1.2k</span>
-                <span className="text-[10px] uppercase text-muted font-bold tracking-wider">Total Headcount</span>
+                <span className="text-2xl font-extrabold text-foreground">1.2k</span>
+                <span className="micro-label">Total Headcount</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="liquid-glass rounded-3xl p-6 border border-foreground/10 flex-1 flex flex-col">
-            <h2 className="text-sm font-bold text-foreground mb-4">Weekly Output (Units)</h2>
+          <motion.div
+            variants={glassPanelVariants}
+            initial="hidden"
+            animate="visible"
+            className="liquid-glass rounded-3xl p-6 flex-1 flex flex-col"
+          >
+            <h2 className="text-sm font-bold text-foreground tracking-tight mb-4">Weekly Output (Units)</h2>
             <div className="flex-1 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={PROD_DATA} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
@@ -144,11 +171,11 @@ export default function GlobalAnalyticsPage() {
                   <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted)', fontSize: 10 }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted)', fontSize: 10 }} />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--glass-border)' }} />
-                  <Bar dataKey="units" name="Units Prod." fill="#818cf8" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="units" name="Units Prod." fill="#818cf8" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

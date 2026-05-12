@@ -23,7 +23,14 @@ import {
   LayoutDashboard,
   Files,
   SlidersHorizontal,
-  Gavel
+  Gavel,
+  Brain,
+  Warehouse,
+  FileText,
+  Radar,
+  Target,
+  AlertTriangle,
+  UserMinus,
 } from "lucide-react";
 
 export const NAVIGATION_MODULES = [
@@ -43,6 +50,7 @@ export const NAVIGATION_MODULES = [
     items: [
       { name: "Manufacturing", href: "/manufacturing/production", icon: Factory },
       { name: "Bill of Materials (BOM)", href: "/manufacturing/bom", icon: Network },
+      { name: "Predictive Maintenance", href: "/manufacturing/maintenance", icon: Brain },
       { name: "Quality Control", href: "/manufacturing/quality", icon: Microscope },
       { name: "Asset & Plant", href: "/manufacturing/assets", icon: Wrench },
     ]
@@ -51,7 +59,8 @@ export const NAVIGATION_MODULES = [
     title: "Inventory & Warehouse",
     items: [
       { name: "Inventory Management", href: "/inventory/stock", icon: Boxes },
-      { name: "Dispatch & Delivery", href: "/inventory/dispatch", icon: Truck },
+      { name: "Warehouse Heatmap", href: "/inventory/warehouse", icon: Warehouse },
+      { name: "Disruption Radar", href: "/inventory/dispatch", icon: Radar },
       { name: "Export & Logistics", href: "/inventory/export", icon: Plane },
       { name: "Spare Parts", href: "/inventory/spares", icon: Settings2 },
     ]
@@ -60,7 +69,8 @@ export const NAVIGATION_MODULES = [
     title: "Purchase & Procurement",
     items: [
       { name: "Purchase Management", href: "/purchase/management", icon: ShoppingCart },
-      { name: "Vendor Management", href: "/purchase/vendors", icon: Users },
+      { name: "Vendor Auctions", href: "/purchase/vendors", icon: Gavel },
+      { name: "Contract Analyzer", href: "/purchase/contracts", icon: FileText },
       { name: "Quotation & Estimation", href: "/purchase/quotations", icon: Calculator },
     ]
   },
@@ -68,25 +78,32 @@ export const NAVIGATION_MODULES = [
     title: "Sales & Order Management",
     items: [
       { name: "Sales & Orders", href: "/sales/orders", icon: Activity },
-      { name: "CRM & Leads", href: "/sales/crm", icon: Magnet },
-      { name: "Customer Management", href: "/sales/customers", icon: UserCircle },
+      { name: "Revenue Pipeline", href: "/sales/crm", icon: Magnet },
+      { name: "Client Sentiment", href: "/sales/customers", icon: UserCircle },
       { name: "After-Sales & Service", href: "/sales/service", icon: LifeBuoy },
     ]
   },
   {
     title: "Finance & Accounts",
     items: [
-      { name: "Accounts & Finance", href: "/finance/accounts", icon: BookOpen },
+      { name: "Cash Flow Time-Machine", href: "/finance/accounts", icon: BookOpen },
       { name: "GST & Tax", href: "/finance/tax", icon: Receipt },
-      { name: "Reports & MIS", href: "/finance/reports", icon: PieChart },
+      { name: "Anomaly Detection", href: "/finance/reports", icon: AlertTriangle },
     ]
   },
   {
     title: "HR & Payroll",
     items: [
-      { name: "HR & Payroll", href: "/hr/payroll", icon: FileBadge },
+      { name: "Flight-Risk Predictor", href: "/hr/payroll", icon: UserMinus },
+      { name: "Skill Matrix", href: "/hr/users", icon: Target },
       { name: "Attendance & Leave", href: "/hr/attendance", icon: CalendarDays },
       { name: "User & Roles", href: "/hr/roles", icon: ShieldCheck },
     ]
-  }
+  },
+  {
+    title: "Government Tenders",
+    items: [
+      { name: "GeM Bid Scorer", href: "/tenders", icon: FileBadge },
+    ]
+  },
 ];

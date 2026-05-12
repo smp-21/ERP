@@ -25,36 +25,41 @@ export default function SettingsUsersPage() {
         breadcrumbs={[{ label: "Settings" }, { label: "Users" }]}
       />
 
-      <div className="flex justify-between items-center bg-foreground/5 p-2 rounded-2xl border border-foreground/10 liquid-glass">
+      <div className="flex justify-between items-center p-2 rounded-2xl liquid-glass">
         <div className="flex items-center gap-2 px-4 w-full max-w-md">
           <Search className="w-5 h-5 text-muted" />
-          <input type="text" placeholder="Search by name, email, or role..." className="w-full bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted py-2" />
+          <input type="text" placeholder="Search by name, email, or role..." className="w-full bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted/60 py-2" />
         </div>
         <div className="flex gap-2 pr-2">
-          <button onClick={() => setShowInviteModal(true)} className="px-4 py-2 text-xs font-semibold rounded-xl bg-foreground text-background shadow-lg flex items-center gap-2">
+          <motion.button
+            whileHover={organicInteractions.hover}
+            whileTap={organicInteractions.tap}
+            onClick={() => setShowInviteModal(true)}
+            className="px-4 py-2 text-xs font-bold rounded-xl bg-[var(--accent)] text-white shadow-lg glow-accent flex items-center gap-2 cursor-pointer"
+          >
             <Plus className="w-4 h-4" /> Invite User
-          </button>
+          </motion.button>
         </div>
       </div>
 
-      <div className="flex-1 liquid-glass rounded-3xl overflow-hidden border border-foreground/10 flex flex-col">
+      <div className="flex-1 liquid-glass rounded-3xl overflow-hidden flex flex-col">
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="text-xs uppercase bg-foreground/5 text-muted sticky top-0 backdrop-blur-md z-10 border-b border-foreground/10">
+            <thead className="micro-label bg-foreground/[0.03] sticky top-0 backdrop-blur-md z-10 border-b border-[var(--glass-border)]">
               <tr>
-                <th className="px-6 py-4 font-semibold tracking-wider">User</th>
-                <th className="px-6 py-4 font-semibold tracking-wider">Role Access</th>
-                <th className="px-6 py-4 font-semibold tracking-wider">Status</th>
-                <th className="px-6 py-4 font-semibold tracking-wider">Last Active</th>
+                <th className="px-6 py-4 tracking-wider">User</th>
+                <th className="px-6 py-4 tracking-wider">Role Access</th>
+                <th className="px-6 py-4 tracking-wider">Status</th>
+                <th className="px-6 py-4 tracking-wider">Last Active</th>
                 <th className="px-6 py-4"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-foreground/5 text-foreground/80">
+            <tbody className="divide-y divide-[var(--glass-border)]/50 text-foreground/80">
               {USERS.map((user) => (
-                <tr key={user.id} className="hover:bg-foreground/5 transition-colors group">
+                <tr key={user.id} className="glass-hover-row group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border border-foreground/10" />
+                      <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border border-[var(--glass-border)]" />
                       <div>
                         <p className="font-bold font-sans text-foreground">{user.name}</p>
                         <p className="text-xs text-muted">{user.email}</p>
@@ -62,24 +67,24 @@ export default function SettingsUsersPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${
-                      user.role === 'Super Admin' ? 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20' :
-                      user.role === 'Finance Head' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                      user.role === 'Read Only' ? 'bg-foreground/10 text-foreground/60 border-foreground/20' :
-                      'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${
+                      user.role === 'Super Admin' ? 'bg-[var(--accent)]/10 text-[var(--accent)] border-[var(--accent)]/20' :
+                      user.role === 'Finance Head' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                      user.role === 'Read Only' ? 'bg-foreground/[0.06] text-foreground/60 border-foreground/10' :
+                      'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
                     }`}>
                       {user.role}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`flex items-center gap-1.5 ${user.status === 'Active' ? 'text-emerald-500' : 'text-muted'}`}>
-                      <div className={`w-2 h-2 rounded-full ${user.status === 'Active' ? 'bg-emerald-500' : 'bg-foreground/20'}`}></div>
+                    <span className={`flex items-center gap-1.5 ${user.status === 'Active' ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted'}`}>
+                      <div className={`w-2 h-2 rounded-full ${user.status === 'Active' ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]' : 'bg-foreground/20'}`}></div>
                       {user.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-muted">{user.lastActive}</td>
                   <td className="px-6 py-4 text-right">
-                    <button className="p-2 hover:bg-foreground/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                    <button className="p-2 hover:bg-foreground/[0.06] rounded-xl transition-colors opacity-0 group-hover:opacity-100 cursor-pointer">
                       <MoreVertical className="w-4 h-4 text-foreground" />
                     </button>
                   </td>
@@ -94,47 +99,53 @@ export default function SettingsUsersPage() {
       <AnimatePresence>
         {showInviteModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowInviteModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/30 backdrop-blur-md"
             />
             <motion.div
               initial={{ scale: 0.95, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1, transition: liquidSpringPhysics }}
               exit={{ scale: 0.95, y: 20, opacity: 0, transition: { duration: 0.15 } }}
-              className="relative w-full max-w-md liquid-glass rounded-3xl overflow-hidden border border-foreground/10 shadow-2xl"
+              className="relative w-full max-w-md liquid-glass-elevated rounded-3xl overflow-hidden shadow-2xl"
             >
-              <div className="p-6 border-b border-foreground/10">
-                <h2 className="text-xl font-bold font-sans text-foreground">Invite New User</h2>
+              <div className="p-6 border-b border-[var(--glass-border)]">
+                <h2 className="text-xl font-extrabold font-sans text-foreground tracking-tight">Invite New User</h2>
                 <p className="text-sm text-muted mt-1">Send an invitation link to grant system access.</p>
               </div>
               <div className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted uppercase tracking-wider">Email Address</label>
+                  <label className="micro-label">Email Address</label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 w-4 h-4 text-muted" />
-                    <input type="email" placeholder="colleague@company.com" className="w-full bg-foreground/5 border border-foreground/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-indigo-500 transition-colors" />
+                    <input type="email" placeholder="colleague@company.com" className="w-full bg-foreground/[0.03] border border-[var(--glass-border)] rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-[var(--accent)] transition-colors" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted uppercase tracking-wider">Assign Role</label>
-                  <select className="w-full bg-foreground/5 border border-foreground/10 rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-indigo-500 transition-colors appearance-none">
+                  <label className="micro-label">Assign Role</label>
+                  <select className="w-full bg-foreground/[0.03] border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-foreground focus:outline-none focus:border-[var(--accent)] transition-colors appearance-none">
                     <option>Manager</option>
                     <option>Operator</option>
                     <option>Read Only</option>
                     <option>Finance Head</option>
                   </select>
                 </div>
-                
-                <div className="flex items-start gap-3 p-3 mt-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500">
+
+                <div className="flex items-start gap-3 p-3 mt-2 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-600 dark:text-amber-400">
                   <ShieldAlert className="w-5 h-5 shrink-0" />
                   <p className="text-xs font-medium">This user will have access to sensitive financial data based on the assigned role.</p>
                 </div>
               </div>
-              <div className="p-6 border-t border-foreground/10 flex justify-end gap-3 bg-foreground/5">
-                <button onClick={() => setShowInviteModal(false)} className="px-4 py-2 text-sm font-semibold text-muted hover:text-foreground">Cancel</button>
-                <button className="px-4 py-2 text-sm font-semibold bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-500/20 transition-colors">Send Invite</button>
+              <div className="p-6 border-t border-[var(--glass-border)] flex justify-end gap-3 bg-foreground/[0.02]">
+                <button onClick={() => setShowInviteModal(false)} className="px-4 py-2 text-sm font-semibold text-muted hover:text-foreground cursor-pointer">Cancel</button>
+                <motion.button
+                  whileHover={organicInteractions.hover}
+                  whileTap={organicInteractions.tap}
+                  className="px-4 py-2 text-sm font-bold bg-[var(--accent)] text-white rounded-xl shadow-lg glow-accent cursor-pointer"
+                >
+                  Send Invite
+                </motion.button>
               </div>
             </motion.div>
           </div>

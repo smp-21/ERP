@@ -23,7 +23,7 @@ export function LiquidModuleTemplate({ moduleName, featureName, data }: LiquidMo
           { label: featureName.replace("-", " ") }
         ]}
       />
-      
+
       <div className="mt-4">
         <LiquidDataGrid
           data={gridData}
