@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Search, Command, Gavel, Sparkles } from "lucide-react";
+import { Menu, Search, Command, Gavel, Sparkles, Sun, Moon } from "lucide-react";
 import { organicInteractions, snappySpring } from "@/lib/motion";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { ProfileDropdown } from "@/components/profile/ProfileDropdown";
 import { LiquidSearch } from "@/components/search/LiquidSearch";
 
@@ -16,6 +17,10 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isGlowing, setIsGlowing] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   // Ambient glow pulse on the search bar
   useEffect(() => {
@@ -37,6 +42,8 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
+
+  const isDark = resolvedTheme === "dark";
 
   return (
     <>
@@ -106,6 +113,41 @@ export function Topbar({ onToggleSidebar }: TopbarProps) {
               </div>
             </div>
           </motion.button>
+
+          {/* Theme Toggle — Sun/Moon */}
+          {mounted && (
+            <motion.button
+              whileHover={organicInteractions.hover}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="w-10 h-10 rounded-full liquid-glass flex items-center justify-center text-foreground/70 hover:text-foreground cursor-pointer relative overflow-hidden"
+              aria-label="Toggle theme"
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                {isDark ? (
+                  <motion.div
+                    key="moon"
+                    initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <Moon className="w-[18px] h-[18px]" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="sun"
+                    initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <Sun className="w-[18px] h-[18px]" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          )}
 
           <ProfileDropdown
             isOpen={isProfileOpen}
